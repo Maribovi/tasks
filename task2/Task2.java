@@ -25,16 +25,14 @@ public class Task2 {
                     int xPoint = Integer.parseInt(coordinates[0]);
                     int yPoint = Integer.parseInt(coordinates[1]);
 
-                    double distance = Math.pow(xPoint - x, 2) + Math.pow(yPoint - y, 2);
-                    double radiusSquared = Math.pow(radius, 2);
-
-                    if (distance < radiusSquared) {
+                    if (xPoint < (radius + x) & yPoint < (radius + y)) {
                         System.out.print("1. Точка (" + xPoint + ", " + yPoint + ") находится внутри окружности.\n");
-                    } else if (distance == radiusSquared) {
+                    } else if ((xPoint == (radius + x)) & (yPoint == (radius + y))) {
                         System.out.print("0. Точка (" + xPoint + ", " + yPoint + ") находится на окружности.\n");
                     } else {
                         System.out.print("2. Точка (" + xPoint + ", " + yPoint + ") находится снаружи окружности.\n");
                     }
+
                 }
                 reader.close();
 
