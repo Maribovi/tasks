@@ -13,16 +13,16 @@ public class Task3 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите путь к файлу values.json:");
-        String valuesFilePath = scanner.nextLine();
+        String values = scanner.nextLine();
         System.out.println("Введите путь к файлу tests.json:");
-        String testsFilePath = scanner.nextLine();
+        String tests = scanner.nextLine();
         System.out.println("Введите путь к формируемому файлу report.json:");
-        String reportFilePath = scanner.nextLine();
+        String report = scanner.nextLine();
         scanner.close();
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode valuesNode = mapper.readTree(new File(valuesFilePath));
+            JsonNode valuesNode = mapper.readTree(new File(values));
             Map<Integer, String> valuesMap = new HashMap<>();
 
             for (JsonNode valueNode : valuesNode.get("values")) {
@@ -31,12 +31,12 @@ public class Task3 {
                 valuesMap.put(id, value);
             }
 
-            JsonNode testsNode = mapper.readTree(new File(testsFilePath));
+            JsonNode testsNode = mapper.readTree(new File(tests));
 
             JsonNode reportNode = fillValues(testsNode, valuesMap);
 
-            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(reportFilePath), reportNode);
-            System.out.println("Report generated successfully at " + reportFilePath);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(report), reportNode);
+            System.out.println("Отчет успешно сформирован. Путь к файлу" + report);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,7 +57,7 @@ public class Task3 {
             }
 
             if (testNode.has("values")) {
-                testReportNode.set("values", fillNestedValues(testNode.get("values"), valuesMap));
+                testReportNode.set("values", fillSubValues(testNode.get("values"), valuesMap));
             }
 
             reportNode.withArray("tests").add(testReportNode);
@@ -66,10 +66,10 @@ public class Task3 {
         return reportNode;
     }
 
-    private static JsonNode fillNestedValues(JsonNode valuesNode, Map<Integer, String> valuesMap) {
+    private static JsonNode fillSubValues(JsonNode valuesNode, Map<Integer, String> valuesMap) {
         ObjectMapper mapper = new ObjectMapper();
-        ObjectNode nestedValuesNode = mapper.createObjectNode();
-        nestedValuesNode.set("values", mapper.createArrayNode());
+        ObjectNode subValuesNode = mapper.createObjectNode();
+        subValuesNode.set("values", mapper.createArrayNode());
 
         for (JsonNode valueNode : valuesNode) {
             ObjectNode valueReportNode = (ObjectNode) valueNode.deepCopy();
@@ -78,14 +78,14 @@ public class Task3 {
             if (valuesMap.containsKey(id)) {
                 valueReportNode.put("value", valuesMap.get(id));
             }
-            
+
             if (valueNode.has("values")) {
-                valueReportNode.set("values", fillNestedValues(valueNode.get("values"), valuesMap));
+                valueReportNode.set("values", fillSubValues(valueNode.get("values"), valuesMap));
             }
 
-            nestedValuesNode.withArray("values").add(valueReportNode);
+            subValuesNode.withArray("values").add(valueReportNode);
         }
 
-        return nestedValuesNode.get("values");
+        return subValuesNode.get("values");
     }
 }
